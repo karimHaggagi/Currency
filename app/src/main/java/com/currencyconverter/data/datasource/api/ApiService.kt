@@ -9,7 +9,7 @@ interface ApiService {
 
     @GET(EndPoint.GET_ALL_CURRENCY)
     suspend fun getLatestCurrency(
-        @Query("access_key") key: String = "38cf91d856ee14577b46c17a0f344075",
+        @Query("access_key") key: String = "ad7abb74d2f91b2cb0c78156168fb98e",
         @Query("format") format: Int = 1
     ): LatestCurrencyDTO
 }

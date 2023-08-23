@@ -84,6 +84,8 @@
         android:layout_marginTop="24dp"
         android:gravity="center"
         android:text="1"
+        android:inputType="number"
+        android:digits="0123456789."
         app:layout_constraintEnd_toEndOf="@+id/spinner_from"
         app:layout_constraintStart_toStartOf="@+id/spinner_from"
         app:layout_constraintTop_toBottomOf="@+id/spinner_from" />
@@ -95,6 +97,8 @@
         android:layout_marginTop="24dp"
         android:gravity="center"
         android:text="1"
+        android:inputType="number"
+        android:digits="0123456789."
         app:layout_constraintEnd_toEndOf="@+id/spinner_to"
         app:layout_constraintStart_toStartOf="@+id/spinner_to"
         app:layout_constraintTop_toBottomOf="@+id/spinner_to" />
