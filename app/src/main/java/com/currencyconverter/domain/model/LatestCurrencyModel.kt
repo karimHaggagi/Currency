@@ -1,6 +1,6 @@
 package com.currencyconverter.domain.model
 
-import com.currencyconverter.data.datasource.api.dto.LatestCurrencyDTO
+import com.currencyconverter.data.datasource.remote.api.dto.LatestCurrencyDTO
 
 data class LatestCurrencyModel(
     val date: String = "",

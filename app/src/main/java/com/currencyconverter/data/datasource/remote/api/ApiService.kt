@@ -1,6 +1,6 @@
-package com.currencyconverter.data.datasource.api
+package com.currencyconverter.data.datasource.remote.api
 
-import com.currencyconverter.data.datasource.api.dto.LatestCurrencyDTO
+import com.currencyconverter.data.datasource.remote.api.dto.LatestCurrencyDTO
 import com.currencyconverter.utils.EndPoint
 import retrofit2.http.GET
 import retrofit2.http.Query

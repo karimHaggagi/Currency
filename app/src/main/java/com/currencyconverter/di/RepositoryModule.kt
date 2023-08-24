@@ -1,6 +1,8 @@
 package com.currencyconverter.di
 
+import com.currencyconverter.data.repository.DetailsRepositoryImpl
 import com.currencyconverter.data.repository.HomeRepositoryImpl
+import com.currencyconverter.domain.repository.DetailsRepository
 import com.currencyconverter.domain.repository.HomeRepository
 import dagger.Module
 import dagger.Provides
@@ -17,4 +19,9 @@ object RepositoryModule {
     @Singleton
     fun provideHomeRepository(homeRepositoryImpl: HomeRepositoryImpl): HomeRepository =
         homeRepositoryImpl
+
+    @Provides
+    @Singleton
+    fun provideDetailsRepository(detailsRepositoryImpl: DetailsRepositoryImpl): DetailsRepository =
+        detailsRepositoryImpl
 }

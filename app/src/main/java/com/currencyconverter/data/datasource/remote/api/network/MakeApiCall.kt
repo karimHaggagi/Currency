@@ -1,4 +1,4 @@
-package com.currencyconverter.data.datasource.api.network
+package com.currencyconverter.data.datasource.remote.api.network
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*

@@ -1,4 +1,4 @@
-package com.currencyconverter.data.datasource.api.dto
+package com.currencyconverter.data.datasource.remote.api.dto
 
 
 data class LatestCurrencyDTO(

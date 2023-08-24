@@ -1,7 +1,7 @@
 package com.currencyconverter.domain.usecase
 
-import com.currencyconverter.data.datasource.api.network.NetworkState
-import com.currencyconverter.data.datasource.api.network.mapResultTo
+import com.currencyconverter.data.datasource.remote.api.network.NetworkState
+import com.currencyconverter.data.datasource.remote.api.network.mapResultTo
 import com.currencyconverter.domain.model.LatestCurrencyModel
 import com.currencyconverter.domain.model.asLatestCurrencyModel
 import com.currencyconverter.domain.repository.HomeRepository

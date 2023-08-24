@@ -1,6 +1,6 @@
 package com.currencyconverter.di
 
-import com.currencyconverter.data.datasource.api.ApiService
+import com.currencyconverter.data.datasource.remote.api.ApiService
 import com.currencyconverter.utils.AppConstants.BASE_URL
 import dagger.Module
 import dagger.Provides

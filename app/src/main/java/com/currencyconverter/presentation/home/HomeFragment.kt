@@ -13,7 +13,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.currencyconverter.data.datasource.api.network.NetworkState
+import androidx.navigation.fragment.findNavController
+import com.currencyconverter.data.datasource.remote.api.network.NetworkState
 import com.currencyconverter.databinding.FragmentHomeBinding
 import com.currencyconverter.domain.model.LatestCurrencyModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,7 +27,9 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: HomeViewModel by viewModels()
-    private var isInputFromUser = false
+    private var isFromSpinnerClicked = false
+    private var isToSpinnerClicked = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,6 +39,9 @@ class HomeFragment : Fragment() {
 
         observeData()
 
+        binding.btnDetails.setOnClickListener {
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToDetailsFragment())
+        }
         return binding.root
     }
 
@@ -68,7 +74,6 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.toCurrencyStateFlow.collectLatest {
-                    isInputFromUser = false
                     binding.etTo.setText(it)
                 }
             }
@@ -77,11 +82,16 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.fromCurrencyStateFlow.collectLatest {
-                    isInputFromUser = false
                     binding.etFrom.setText(it)
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isFromSpinnerClicked = false
+        isToSpinnerClicked = false
     }
 
     private fun handleResponseData(data: LatestCurrencyModel) {
@@ -93,8 +103,12 @@ class HomeFragment : Fragment() {
             android.R.layout.simple_spinner_item,
             data.ratesNames.keys.toList()
         )
-        fromCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item)
 
+
+        binding.spinnerFrom.setOnTouchListener { view, motionEvent ->
+            isFromSpinnerClicked = true
+            false
+        }
         binding.spinnerFrom.adapter = fromCurrencyAdapter
         binding.spinnerFrom.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
@@ -103,8 +117,9 @@ class HomeFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                viewModel.setSelectedFromCurrency(data.ratesNames.values.toList()[position])
-
+                if (isFromSpinnerClicked) {
+                    viewModel.setSelectedFromCurrency(data.ratesNames.toList()[position])
+                }
             } // to close the onItemSelected
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -115,10 +130,12 @@ class HomeFragment : Fragment() {
             android.R.layout.simple_spinner_item,
             data.ratesNames.keys.toList()
         )
-        toCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item)
 
+        binding.spinnerTo.setOnTouchListener { view, motionEvent ->
+            isToSpinnerClicked = true
+            false
+        }
         binding.spinnerTo.adapter = toCurrencyAdapter
-
         binding.spinnerTo.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -126,18 +143,16 @@ class HomeFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                viewModel.setSelectedToCurrency(data.ratesNames.values.toList()[position])
-
-            } // to close the onItemSelected
+                if (isToSpinnerClicked) {
+                    viewModel.setSelectedToCurrency(data.ratesNames.toList()[position])
+                } // to close the onItemSelected
+            }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
 
         }
 
-
-        viewModel.setSelectedFromCurrency(data.ratesNames.values.toList()[0])
-        viewModel.setSelectedToCurrency(data.ratesNames.values.toList()[0])
 
         binding.btnSwitch.setOnClickListener {
             val toSpinnerPosition = binding.spinnerTo.selectedItemPosition
@@ -152,19 +167,16 @@ class HomeFragment : Fragment() {
     private fun setTextChangedListener() {
 
         binding.etFrom.doOnTextChanged { text, _, _, _ ->
-            if (isInputFromUser) {
+            if (binding.etFrom.hasFocus()) {
                 viewModel.setAmountFromCurrency(text.toString())
-            } else {
-                isInputFromUser = true
             }
         }
 
         binding.etTo.doOnTextChanged { text, _, _, _ ->
-            if (isInputFromUser) {
+            if (binding.etTo.hasFocus()) {
                 viewModel.onConvertedValueChanged(text.toString())
-            } else {
-                isInputFromUser = true
             }
         }
+
     }
 }

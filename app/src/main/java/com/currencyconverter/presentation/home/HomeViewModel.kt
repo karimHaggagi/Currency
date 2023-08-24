@@ -2,10 +2,11 @@ package com.currencyconverter.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.currencyconverter.data.datasource.api.network.NetworkState
+import com.currencyconverter.data.datasource.remote.api.network.NetworkState
 import com.currencyconverter.domain.model.LatestCurrencyModel
 import com.currencyconverter.domain.usecase.ConvertCurrencyUseCase
 import com.currencyconverter.domain.usecase.GetLatestCurrencyUseCase
+import com.currencyconverter.domain.usecase.SaveToDatabaseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getLatestCurrencyUseCase: GetLatestCurrencyUseCase,
-    private val convertCurrencyUseCase: ConvertCurrencyUseCase
+    private val convertCurrencyUseCase: ConvertCurrencyUseCase,
+    private val saveToDatabaseUseCase: SaveToDatabaseUseCase
 ) :
     ViewModel() {
 
@@ -30,8 +32,8 @@ class HomeViewModel @Inject constructor(
     private val _fromCurrencyStateFlow = MutableStateFlow("1")
     val fromCurrencyStateFlow = _fromCurrencyStateFlow.asStateFlow()
 
-    private var fromCurrency = 0.0
-    private var toCurrency = 0.0
+    private var fromCurrency = "" to 0.0
+    private var toCurrency = "" to 0.0
 
     private var amount = "1"
 
@@ -47,7 +49,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun setSelectedFromCurrency(fromCurrency: Double) {
+    fun setSelectedFromCurrency(fromCurrency: Pair<String, Double>) {
         this.fromCurrency = fromCurrency
         viewModelScope.launch {
             _fromCurrencyStateFlow.emit("1")
@@ -57,12 +59,21 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun setSelectedToCurrency(toCurrency: Double) {
+    fun setSelectedToCurrency(toCurrency: Pair<String, Double>) {
         this.toCurrency = toCurrency
 
         viewModelScope.launch {
             _toCurrencyStateFlow.emit("1")
-            _toCurrencyStateFlow.emit(convertToCurrency())
+            val result = convertToCurrency()
+            _toCurrencyStateFlow.emit(result)
+
+            saveToDatabaseUseCase(
+                fromCurrency = fromCurrency,
+                toCurrency = toCurrency,
+                amount = amount,
+                result = result,
+                date = (latestCurrencyStateFlow.value as NetworkState.Success).data.date
+            )
         }
     }
 
@@ -75,10 +86,9 @@ class HomeViewModel @Inject constructor(
         }
         return convertCurrencyUseCase.convertFromCurrencyToAnotherCurrency(
             amount = amount,
-            fromCurrency = fromCurrency,
-            toCurrency = toCurrency
+            fromCurrency = fromCurrency.second,
+            toCurrency = toCurrency.second
         )
-
     }
 
     fun setAmountFromCurrency(amount: String?) {
@@ -102,8 +112,8 @@ class HomeViewModel @Inject constructor(
             _fromCurrencyStateFlow.emit(
                 convertCurrencyUseCase.convertFromCurrencyToAnotherCurrency(
                     amount = amount,
-                    fromCurrency = toCurrency,
-                    toCurrency = fromCurrency
+                    fromCurrency = toCurrency.second,
+                    toCurrency = fromCurrency.second
                 )
             )
         }
