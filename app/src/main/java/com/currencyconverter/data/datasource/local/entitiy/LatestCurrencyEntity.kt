@@ -9,13 +9,9 @@ import com.currencyconverter.domain.model.Currency
 @Entity(tableName = "LatestCurrencyTable")
 data class LatestCurrencyEntity(
     @ColumnInfo(name = "FromCurrency")
-    val fromCurrency: Map<String, Double>,
+    val fromCurrency: Map<String, String>,
     @ColumnInfo(name = "ToCurrency")
-    val toCurrency: Map<String, Double>,
-    @ColumnInfo(name = "Amount")
-    val amount: String = "",
-    @ColumnInfo(name = "ConvertedAmount")
-    val convertedAmount: String = "",
+    val toCurrency: Map<String, String>,
     @ColumnInfo(name = "Date")
     val date: String = "",
     @ColumnInfo(name = "OtherCurrency")
@@ -26,12 +22,12 @@ data class LatestCurrencyEntity(
 
 fun LatestCurrencyEntity.fromCurrency(): Currency {
     val item = fromCurrency.iterator().next()
-    return Currency(name = item.key, value = amount)
+    return Currency(name = item.key, value = item.value)
 }
 
 fun LatestCurrencyEntity.toCurrency(): Currency {
     val item = toCurrency.iterator().next()
-    return Currency(name = item.key, value = convertedAmount)
+    return Currency(name = item.key, value = item.value)
 }
 
 fun LatestCurrencyEntity.toOtherCurrencyList(): List<Currency> {

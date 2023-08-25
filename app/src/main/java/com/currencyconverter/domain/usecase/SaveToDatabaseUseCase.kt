@@ -26,11 +26,13 @@ class SaveToDatabaseUseCase @Inject constructor(
                 d
             )
         }
+        val fromMap = hashMapOf<String, String>()
+        fromMap[fromCurrency.first] = amount
+        val toMap = hashMapOf<String, String>()
+        toMap[toCurrency.first] = result
         val item = LatestCurrencyEntity(
-            fromCurrency = mapOf(fromCurrency),
-            toCurrency = mapOf(toCurrency),
-            amount = amount,
-            convertedAmount = result,
+            fromCurrency = fromMap,
+            toCurrency = toMap,
             date = date,
             otherCurrency = convertedMap
         )
