@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import com.currencyconverter.data.datasource.remote.api.network.NetworkState
 import com.currencyconverter.databinding.FragmentHomeBinding
 import com.currencyconverter.domain.model.LatestCurrencyModel
+import com.currencyconverter.utils.Alert
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -58,12 +59,15 @@ class HomeFragment : Fragment() {
                             binding.progressBar.visibility = View.GONE
                             if (state.data.success) {
                                 handleResponseData(state.data)
-                            }
+                            } else {
+                                Alert.showDialog(requireContext(), "Invalid Data")
 
+                            }
                         }
 
                         is NetworkState.Error -> {
                             binding.progressBar.visibility = View.GONE
+                            Alert.showDialog(requireContext(), state.error ?: "Error Message")
 
                         }
                     }

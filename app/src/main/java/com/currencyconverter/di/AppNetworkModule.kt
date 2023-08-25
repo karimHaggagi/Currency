@@ -1,6 +1,9 @@
 package com.currencyconverter.di
 
+import android.app.Application
+import android.content.Context
 import com.currencyconverter.data.datasource.remote.api.ApiService
+import com.currencyconverter.data.datasource.remote.api.network.NetworkConnectionInterceptor
 import com.currencyconverter.utils.AppConstants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -19,10 +22,17 @@ object AppNetworkModule {
 
     @Provides
     @Singleton
+    fun provideNetworkInterceptor(application: Application): NetworkConnectionInterceptor =
+        NetworkConnectionInterceptor(application)
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
+        interceptor: NetworkConnectionInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .protocols(listOf(Protocol.HTTP_1_1))
+            .addInterceptor(interceptor)
             .readTimeout(
                 60,
                 TimeUnit.SECONDS
