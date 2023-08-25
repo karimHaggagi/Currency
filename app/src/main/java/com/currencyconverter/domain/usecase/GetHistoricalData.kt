@@ -1,5 +1,8 @@
 package com.currencyconverter.domain.usecase
 
+import com.currencyconverter.data.datasource.local.entitiy.fromCurrency
+import com.currencyconverter.data.datasource.local.entitiy.toCurrency
+import com.currencyconverter.data.datasource.local.entitiy.toOtherCurrencyList
 import com.currencyconverter.domain.model.HistoricalDataModel
 import com.currencyconverter.domain.repository.DetailsRepository
 import kotlinx.coroutines.flow.Flow
@@ -12,18 +15,18 @@ class GetHistoricalData @Inject constructor(private val detailsRepository: Detai
         return detailsRepository.getHistoricalData().map { entityList ->
             val grouped = entityList.groupBy { it.date }
             val list: MutableList<HistoricalDataModel> = mutableListOf()
+
             grouped.keys.forEachIndexed { index, item ->
-                list.add(
-                    HistoricalDataModel.HistoricalDataHeaderItem(index, item)
-                )
-                grouped[item]?.toList()?.forEachIndexed { itemIndex, data ->
+                list.add(HistoricalDataModel.HistoricalDataHeaderItem(index, item))
+
+
+                grouped[item]?.toList()?.reversed()?.forEachIndexed { itemIndex, data ->
                     list.add(
                         HistoricalDataModel.HistoricalDataItem(
                             idItem = itemIndex,
-                            fromCurrencyName = data.fromCurrency.keys.first(),
-                            toCurrencyName = data.toCurrency.keys.first(),
-                            fromCurrencyValue = data.amount,
-                            toCurrencyValue = data.convertedAmount
+                            fromCurrency = data.fromCurrency(),
+                            toCurrency = data.toCurrency(),
+                            otherCurrency = data.toOtherCurrencyList()
                         )
                     )
                 }

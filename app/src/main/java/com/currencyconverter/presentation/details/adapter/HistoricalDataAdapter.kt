@@ -9,7 +9,7 @@ import com.currencyconverter.databinding.HeaderItemBinding
 import com.currencyconverter.databinding.HistoricalDataItemBinding
 import com.currencyconverter.domain.model.HistoricalDataModel
 
-class HistoricalDataAdapter :
+class HistoricalDataAdapter(private val onCurrencyItemClickListener: OnCurrencyItemClickListener) :
     ListAdapter<HistoricalDataModel, ViewHolder>(
         DataDifferntiator
     ) {
@@ -18,6 +18,13 @@ class HistoricalDataAdapter :
         ViewHolder(binding.root) {
         fun bind(item: HistoricalDataModel.HistoricalDataItem) {
             binding.model = item
+            if (adapterPosition == 1) {
+                onCurrencyItemClickListener.onCurrencyItemClick(item.otherCurrency)
+            }
+
+            binding.root.setOnClickListener {
+                onCurrencyItemClickListener.onCurrencyItemClick(item.otherCurrency)
+            }
         }
     }
 

@@ -12,7 +12,20 @@ class MapTypeConverter {
     }
 
     @TypeConverter
-    fun toMap(json: String): Map<String, Double> {
+    fun toStringMap(json: String): Map<String, Double> {
+        val gson = Gson()
+        val type = object : TypeToken<Map<String, String>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    @TypeConverter
+    fun fromStringMap(map: Map<String, String>): String {
+        val gson = Gson()
+        return gson.toJson(map)
+    }
+
+    @TypeConverter
+    fun toMap(json: String): Map<String, String> {
         val gson = Gson()
         val type = object : TypeToken<Map<String, String>>() {}.type
         return gson.fromJson(json, type)

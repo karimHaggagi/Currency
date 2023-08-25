@@ -72,7 +72,8 @@ class HomeViewModel @Inject constructor(
                 toCurrency = toCurrency,
                 amount = amount,
                 result = result,
-                date = (latestCurrencyStateFlow.value as NetworkState.Success).data.date
+                date = (latestCurrencyStateFlow.value as NetworkState.Success).data.date,
+                otherCurrency = (latestCurrencyStateFlow.value as NetworkState.Success).data.ratesNames
             )
         }
     }
