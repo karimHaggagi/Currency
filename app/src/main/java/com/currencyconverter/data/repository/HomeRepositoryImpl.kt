@@ -25,4 +25,8 @@ class HomeRepositoryImpl @Inject constructor(
     override suspend fun insertToDatabase(item: LatestCurrencyEntity) {
         localDatabase.currencyDao().insertToDatabase(item)
     }
+
+    override suspend fun deleteDataByDate(date: String) {
+        localDatabase.currencyDao().deleteByDate(date)
+    }
 }

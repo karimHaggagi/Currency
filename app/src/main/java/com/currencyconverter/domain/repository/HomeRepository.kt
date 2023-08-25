@@ -9,4 +9,5 @@ interface HomeRepository {
 
     suspend fun getLatestCurrency(): Flow<NetworkState<LatestCurrencyDTO>>
     suspend fun insertToDatabase(item: LatestCurrencyEntity)
+    suspend fun deleteDataByDate(date: String)
 }

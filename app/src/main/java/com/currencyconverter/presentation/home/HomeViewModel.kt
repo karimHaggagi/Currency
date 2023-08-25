@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.currencyconverter.data.datasource.remote.api.network.NetworkState
 import com.currencyconverter.domain.model.LatestCurrencyModel
 import com.currencyconverter.domain.usecase.ConvertCurrencyUseCase
+import com.currencyconverter.domain.usecase.DeleteDataByDateUseCase
 import com.currencyconverter.domain.usecase.GetLatestCurrencyUseCase
 import com.currencyconverter.domain.usecase.SaveToDatabaseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getLatestCurrencyUseCase: GetLatestCurrencyUseCase,
     private val convertCurrencyUseCase: ConvertCurrencyUseCase,
-    private val saveToDatabaseUseCase: SaveToDatabaseUseCase
+    private val saveToDatabaseUseCase: SaveToDatabaseUseCase,
+    private val deleteDataByDateUseCase: DeleteDataByDateUseCase
 ) :
     ViewModel() {
 
@@ -38,7 +40,14 @@ class HomeViewModel @Inject constructor(
     private var amount = "1"
 
     init {
+        deleteDataBeforeLastThreeDays()
         getLatestCurrency()
+    }
+
+    private fun deleteDataBeforeLastThreeDays() {
+        viewModelScope.launch {
+            deleteDataByDateUseCase()
+        }
     }
 
     private fun getLatestCurrency() {
