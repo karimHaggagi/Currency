@@ -13,7 +13,7 @@ interface CurrencyDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertToDatabase(item: LatestCurrencyEntity)
 
-    @Query("SELECT * FROM LatestCurrencyTable")
+    @Query("SELECT * FROM LatestCurrencyTable  ORDER BY Date DESC")
     fun getHistoricalData(): Flow<List<LatestCurrencyEntity>>
 
     @Query("DELETE FROM LatestCurrencyTable WHERE Date =:date")

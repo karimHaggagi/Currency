@@ -19,7 +19,15 @@ import com.currencyconverter.databinding.FragmentHomeBinding
 import com.currencyconverter.domain.model.LatestCurrencyModel
 import com.currencyconverter.utils.Alert
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
@@ -30,6 +38,8 @@ class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
     private var isFromSpinnerClicked = false
     private var isToSpinnerClicked = false
+    private var selectedFromCurrencyPosition = 0
+    private var selectedToCurrencyPosition = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -114,6 +124,7 @@ class HomeFragment : Fragment() {
             false
         }
         binding.spinnerFrom.adapter = fromCurrencyAdapter
+        binding.spinnerFrom.setSelection(selectedFromCurrencyPosition, false)
         binding.spinnerFrom.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -121,6 +132,7 @@ class HomeFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
+                selectedFromCurrencyPosition = position
                 if (isFromSpinnerClicked) {
                     viewModel.setSelectedFromCurrency(data.ratesNames.toList()[position])
                 }
@@ -140,6 +152,7 @@ class HomeFragment : Fragment() {
             false
         }
         binding.spinnerTo.adapter = toCurrencyAdapter
+        binding.spinnerTo.setSelection(selectedToCurrencyPosition, false)
         binding.spinnerTo.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -147,6 +160,7 @@ class HomeFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
+                selectedToCurrencyPosition = position
                 if (isToSpinnerClicked) {
                     viewModel.setSelectedToCurrency(data.ratesNames.toList()[position])
                 } // to close the onItemSelected
@@ -170,17 +184,44 @@ class HomeFragment : Fragment() {
 
     private fun setTextChangedListener() {
 
-        binding.etFrom.doOnTextChanged { text, _, _, _ ->
-            if (binding.etFrom.hasFocus()) {
-                viewModel.setAmountFromCurrency(text.toString())
+        callbackFlow {
+            binding.etFrom.doOnTextChanged { text, _, _, _ ->
+                if (binding.etFrom.hasFocus()) {
+                    trySend(text.toString()).isSuccess
+                }
             }
-        }
+            awaitClose { binding.etFrom.addTextChangedListener(null) }
+        }.debounce(500)
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.IO)
+            .onEach {
+                // Check if the search view is visible first, so that the callback is not fired
+                // if the user has already closed the search view.
+                if (it.isNotEmpty()) {
+                    viewModel.setAmountFromCurrency(it)
+                }
+            }
+            .launchIn(lifecycleScope)
 
-        binding.etTo.doOnTextChanged { text, _, _, _ ->
-            if (binding.etTo.hasFocus()) {
-                viewModel.onConvertedValueChanged(text.toString())
+        callbackFlow {
+            binding.etTo.doOnTextChanged { text, _, _, _ ->
+                if (binding.etTo.hasFocus()) {
+                    trySend(text.toString()).isSuccess
+                }
             }
-        }
+            awaitClose { binding.etTo.addTextChangedListener(null) }
+        }.debounce(500)
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.IO)
+            .onEach {
+                // Check if the search view is visible first, so that the callback is not fired
+                // if the user has already closed the search view.
+                if (it.isNotEmpty()) {
+                    viewModel.onConvertedValueChanged(it)
+                }
+            }
+            .launchIn(lifecycleScope)
+
 
     }
 }
